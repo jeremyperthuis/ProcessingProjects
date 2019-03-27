@@ -63,7 +63,8 @@ class MyRect{
     y2 = Y2;
     nbLine =nbline;
     l = new MyLine[nbLine];
-    int dephasage = (int)random(50);
+    //int dephasage = (int)random(50);
+     int dephasage = 0;
     int sens = (int)random(2);
     for(int i=0;i<nbline;i++){
       l[i] = new MyLine(x1,y1,i,nbline,dephasage,sens);
@@ -169,12 +170,12 @@ class MyLine{
           x2Line = x1Line;
         }
         /** Si la ligne atteint son arrivée dans le cas normal **/
-        if(x1Line <= start && x1Line <= end && start > end){
+        if(x1Line <= start && x1Line <= end && start < end){
           x1Line=end;
           x2Line = x1Line; 
         }
         /** Si la ligne atteint son arrivé dans le cas ou start est après l'arrivée **/
-        if(x1Line <= start && x1Line >= end && start < end){
+        if(x1Line <= start && x1Line >= end && start > end){
           x1Line=end;
           x2Line = x1Line; 
         }
