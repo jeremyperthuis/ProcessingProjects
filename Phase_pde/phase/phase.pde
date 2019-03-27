@@ -1,7 +1,7 @@
 int longueurRect = 700;
 int hauteurRect = 100;
-int nbRectangle = 1;
-int nbTrait = 35;
+int nbRectangle = 5;
+int nbTrait = 14; // doit etre un multiple de longueurRect
 int margin = 10;
 
 MyContener c;
@@ -63,10 +63,10 @@ class MyRect{
     y2 = Y2;
     nbLine =nbline;
     l = new MyLine[nbLine];
-    //int dephasage = (int)random(5);
-    int dephasage = 0;
+    int dephasage = (int)random(50);
+    int sens = (int)random(2);
     for(int i=0;i<nbline;i++){
-      l[i] = new MyLine(x1,y1,i,nbline,dephasage);
+      l[i] = new MyLine(x1,y1,i,nbline,dephasage,sens);
     }
    }
    
@@ -100,18 +100,19 @@ class MyLine{
   /** Point de l'intervale de déplacement de la line **/
   int start;
   int end;
+  int sens;
   int increment;
   int dephasage;  
   int pas;        // ecart entre 2 lines
   int nbline;     // nombre de ligne totale dans le rectangle
   
-  MyLine(int X1, int Y1, int increment, int nbLine,int Dephasage){ // le pas correspond a l'incrément de la boucle des lines
-    dephasage = Dephasage; 
-    nbline = nbLine;
-    pas = (longueurRect/nbline);
+  MyLine(int X1, int Y1, int increment, int nbline,int dephasage, int sens){ // le pas correspond a l'incrément de la boucle des lines
+    this.dephasage = dephasage; 
+    this.nbline = nbline;
+    this.sens = sens;
+    this.pas = (longueurRect/nbline);
     int decalage = calculdecalage(increment);
-    println(decalage);
-    start = X1+decalage+dephasage;
+    this.start = X1+decalage+dephasage;
     this.increment = increment;
     x1Line = start;
     y1Line = Y1;
@@ -123,7 +124,7 @@ class MyLine{
     y2Rect = Y1+hauteurRect;
     
     end = calculEnd();
-    println("Increment : "+ increment, "x1Rect : "+x1Rect,"x2Rect : "+x2Rect," | START : "+start, "END : "+end,"Dephasage : "+dephasage);
+    //println("Increment : "+ increment, "x1Rect : "+x1Rect,"x2Rect : "+x2Rect," | START : "+start, "END : "+end,"Dephasage : "+dephasage);
   }
   
   void display(){
@@ -131,34 +132,62 @@ class MyLine{
   }
   
   void deplacement(){
-    
-    if(increment == 34){println("x1Line : "+x1Line);}
-    
-    if(dephasage != 0){
-      /** Si la ligne sors du rectangle **/  
-      if(x1Line >= x2Rect){
-        x1Line=x1Rect;
-        x2Line = x1Line;
+    /** Sens de gauche à droite **/
+    if(sens == 0){
+      if(dephasage != 0){
+        /** Si la ligne sors du rectangle **/  
+        if(x1Line >= x2Rect){
+          x1Line=x1Rect;
+          x2Line = x1Line;
+        }
+        /** Si la ligne atteint son arrivée dans le cas normal **/
+        if(x1Line >= end && x1Line >= start && start < end){
+          x1Line=start;
+          x2Line = x1Line; 
+        }
+        /** Si la ligne atteint son arrivé dans le cas ou start est après l'arrivée **/
+        if(x1Line >= end && x1Line <= start && start > end){
+          x1Line=start;
+          x2Line = x1Line; 
+        }
       }
-      /** Si la ligne atteint son arrivée dans le cas normal **/
-      if(x1Line >= end && x1Line >= start && start < end){
-        x1Line=start;
-        x2Line = x1Line; 
-      }
-      /** Si la ligne atteint son arrivé dans le cas ou start est après l'arrivée **/
-      if(x1Line >= end && x1Line <= start && start > end){
-        x1Line=start;
-        x2Line = x1Line; 
-      }
+      if(dephasage == 0){
+        if(x1Line>= end){
+           x1Line=start;
+           x2Line = x1Line; 
+        }
+      } //<>// //<>// //<>// //<>// //<>// //<>//
+      x1Line+=1; //<>//
+      x2Line=x1Line; //<>//
     }
-    if(dephasage == 0){
-      if(x1Line>= end){
-         x1Line=start;
-         x2Line = x1Line; 
+    /** Sens de droite à gauche**/
+    if(sens == 1){
+      if(dephasage != 0){
+        /** Si la ligne sors du rectangle **/  
+        if(x1Line <= x1Rect){
+          x1Line=x2Rect;
+          x2Line = x1Line;
+        }
+        /** Si la ligne atteint son arrivée dans le cas normal **/
+        if(x1Line <= start && x1Line <= end && start > end){
+          x1Line=end;
+          x2Line = x1Line; 
+        }
+        /** Si la ligne atteint son arrivé dans le cas ou start est après l'arrivée **/
+        if(x1Line <= start && x1Line >= end && start < end){
+          x1Line=end;
+          x2Line = x1Line; 
+        }
       }
-    } //<>// //<>// //<>// //<>// //<>// //<>//
-    x1Line+=1; //<>//
-    x2Line=x1Line; //<>//
+      if(dephasage == 0){
+        if(x1Line<= start){
+           x1Line=end;
+           x2Line = x1Line; 
+        }
+      } //<>// //<>// //<>// //<>// //<>//
+      x1Line-=1;
+      x2Line=x1Line;
+    }
   }
   
   /** Calcul le point de départ du point en fonction de l'incrément **/
