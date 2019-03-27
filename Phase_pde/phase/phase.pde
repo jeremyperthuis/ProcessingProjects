@@ -1,6 +1,6 @@
 int longueurRect = 700;
 int hauteurRect = 100;
-int nbRectangle = 5;
+int nbRectangle = 6;
 int nbTrait = 10;
 int margin = 10;
 
@@ -63,8 +63,9 @@ class MyRect{
     y2 = Y2;
     nbLine =nbline;
     l = new MyLine[nbLine];
+    int dephasage = (int)random(70);
     for(int i=0;i<nbline;i++){
-      l[i] = new MyLine(x1,y1,i,nbline);
+      l[i] = new MyLine(x1,y1,i,nbline,dephasage);
     }
    }
    
@@ -82,44 +83,91 @@ class MyRect{
 
 
 class MyLine{ 
-  int origin;
-  int x1;
-  int y1;
-  int x2;
-  int y2;
-  int decalage; // decalage de la ligne pa rapport à la premiere
-  int nbline;   // nombre de ligne totale dans le rectangle
-
   
-  MyLine(int X1, int Y1, int Pas, int nbLine){ // le pas correspond a l'incrément de la boucle des lines
-
+  /** Points de la line **/
+  int x1Line;
+  int y1Line;
+  int x2Line;
+  int y2Line;
+  
+  /** Point du rectangle **/
+  int x1Rect; 
+  int y1Rect;
+  int x2Rect;
+  int y2Rect;
+  
+  /** Point de l'intervale de déplacement de la line **/
+  int start;
+  int end;
+  int increment;
+  int dephasage;  
+  int pas;        // ecart entre 2 lines
+  int nbline;     // nombre de ligne totale dans le rectangle
+  
+  MyLine(int X1, int Y1, int increment, int nbLine,int Dephasage){ // le pas correspond a l'incrément de la boucle des lines
+    dephasage = Dephasage; 
     nbline = nbLine;
-    decalage = calculdecalage(Pas);
-    origin = X1+decalage;
-    x1 = X1+decalage;
-    y1 = Y1;
-    x2 = x1;
-    y2 = Y1+hauteurRect;
+    pas = (longueurRect/nbline);
+    int decalage = calculdecalage(increment);
+    println(decalage);
+    start = X1+decalage+dephasage;
+    this.increment = increment;
+    x1Line = start;
+    y1Line = Y1;
+    x2Line = x1Line;
+    y2Line = Y1+hauteurRect;
+    x1Rect = X1;
+    y1Rect = Y1;
+    x2Rect = X1+longueurRect;
+    y2Rect = Y1+hauteurRect;
+    
+    end = calculEnd();
+    println("x1Rect : "+x1Rect,"x2Rect : "+x2Rect," | START : "+start, "END : "+end,"Dephasage : "+dephasage);
   }
   
   void display(){
-    line(x1, y1, x2, y2);
+    line(x1Line, y1Line, x2Line, y2Line);
   }
   
   void deplacement(){
-    //r.display();
-    if(x1>(origin+(longueurRect/nbline))){
-      x1 = origin; 
-      x2 = x1 ;
+    /** Si la ligne sors du rectangle **/  
+    if(x1Line >= x2Rect){
+      x1Line=x1Rect;
+      x2Line = x1Line;
+    }  
+    /** Si la ligne atteint son arrivée dans le cas normal **/
+    if(x1Line >= end && x1Line >= start && start < end){
+      x1Line=start;
+      x2Line = x1Line; 
     }
-    x1+=1;
-    x2=x1;
+    /** Si la ligne atteint son arrivé dans le cas ou start est après l'arrivée **/
+    if(x1Line >= end && x1Line <= start && start > end){
+      x1Line=start;
+      x2Line = x1Line; 
+    }
+     //<>// //<>// //<>// //<>// //<>// //<>//
+    x1Line+=1; //<>//
+    x2Line=x1Line; //<>//
   }
   
+  /** Calcul le point de départ du point en fonction de l'incrément **/
   int calculdecalage(int Pas){
     if(Pas==0){return 0;}
     else{
-      return (longueurRect/nbline)*Pas;
+      return((longueurRect/nbline)*Pas);
     }
+  }
+  /** Calcul le point d'arrivée de la ligne **/
+  int calculEnd(){
+    // Si l'arrivée est dans le rectangle
+    if((start+pas) <= x2Rect){
+      return (start+pas);
+    }
+    // si l'arrivée est en dehors du rectangle
+    if ((start+pas) > x2Rect){
+      print("ok");
+      return(x1Rect + dephasage);
+    }
+    else return 0;
   }
 }
