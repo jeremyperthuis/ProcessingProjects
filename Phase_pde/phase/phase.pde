@@ -1,7 +1,7 @@
 int longueurRect = 700;
 int hauteurRect = 100;
-int nbRectangle = 6;
-int nbTrait = 10;
+int nbRectangle = 1;
+int nbTrait = 35;
 int margin = 10;
 
 MyContener c;
@@ -63,7 +63,8 @@ class MyRect{
     y2 = Y2;
     nbLine =nbline;
     l = new MyLine[nbLine];
-    int dephasage = (int)random(70);
+    //int dephasage = (int)random(5);
+    int dephasage = 0;
     for(int i=0;i<nbline;i++){
       l[i] = new MyLine(x1,y1,i,nbline,dephasage);
     }
@@ -122,7 +123,7 @@ class MyLine{
     y2Rect = Y1+hauteurRect;
     
     end = calculEnd();
-    println("x1Rect : "+x1Rect,"x2Rect : "+x2Rect," | START : "+start, "END : "+end,"Dephasage : "+dephasage);
+    println("Increment : "+ increment, "x1Rect : "+x1Rect,"x2Rect : "+x2Rect," | START : "+start, "END : "+end,"Dephasage : "+dephasage);
   }
   
   void display(){
@@ -130,22 +131,32 @@ class MyLine{
   }
   
   void deplacement(){
-    /** Si la ligne sors du rectangle **/  
-    if(x1Line >= x2Rect){
-      x1Line=x1Rect;
-      x2Line = x1Line;
-    }  
-    /** Si la ligne atteint son arrivée dans le cas normal **/
-    if(x1Line >= end && x1Line >= start && start < end){
-      x1Line=start;
-      x2Line = x1Line; 
+    
+    if(increment == 34){println("x1Line : "+x1Line);}
+    
+    if(dephasage != 0){
+      /** Si la ligne sors du rectangle **/  
+      if(x1Line >= x2Rect){
+        x1Line=x1Rect;
+        x2Line = x1Line;
+      }
+      /** Si la ligne atteint son arrivée dans le cas normal **/
+      if(x1Line >= end && x1Line >= start && start < end){
+        x1Line=start;
+        x2Line = x1Line; 
+      }
+      /** Si la ligne atteint son arrivé dans le cas ou start est après l'arrivée **/
+      if(x1Line >= end && x1Line <= start && start > end){
+        x1Line=start;
+        x2Line = x1Line; 
+      }
     }
-    /** Si la ligne atteint son arrivé dans le cas ou start est après l'arrivée **/
-    if(x1Line >= end && x1Line <= start && start > end){
-      x1Line=start;
-      x2Line = x1Line; 
-    }
-     //<>// //<>// //<>// //<>// //<>// //<>//
+    if(dephasage == 0){
+      if(x1Line>= end){
+         x1Line=start;
+         x2Line = x1Line; 
+      }
+    } //<>// //<>// //<>// //<>// //<>// //<>//
     x1Line+=1; //<>//
     x2Line=x1Line; //<>//
   }
