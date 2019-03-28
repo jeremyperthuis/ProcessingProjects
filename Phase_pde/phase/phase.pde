@@ -1,13 +1,15 @@
 int longueurRect = 700;
 int hauteurRect = 100;
 int nbRectangle = 5;
-int nbTrait = 14; // doit etre un multiple de longueurRect
+int nbTrait = 35; // doit etre un multiple de longueurRect
 int margin = 10;
 
 MyContener c;
 
 void setup(){
-  size(1024, 768);
+  size(1024, 768, P2D);
+  //smooth(2);
+  frameRate(40);
   background(0,0,0);
   c = new MyContener(nbRectangle);
 }
@@ -15,8 +17,8 @@ void setup(){
 void draw(){
   background(0,0,0);
   c.display();
+  println(frameRate);
 }
-
 
 /** Contient les rectangles, ajuste leurs positions **/
 class MyContener{
@@ -54,7 +56,7 @@ class MyRect{
   int x2;
   int y2;
   int nbLine;
-  MyLine[] l;
+  MyTriangle[] l;
   
   MyRect(int X1, int Y1, int X2, int Y2, int nbline){
     x1 = X1;
@@ -62,12 +64,11 @@ class MyRect{
     x2 = X2;
     y2 = Y2;
     nbLine =nbline;
-    l = new MyLine[nbLine];
-    //int dephasage = (int)random(50);
-     int dephasage = 0;
+    l = new MyTriangle[nbLine];
+    int dephasage = (int)random(longueurRect/nbline);
     int sens = (int)random(2);
     for(int i=0;i<nbline;i++){
-      l[i] = new MyLine(x1,y1,i,nbline,dephasage,sens);
+      l[i] = new MyTriangle(x1,y1,i,nbline,dephasage,sens);
     }
    }
    
@@ -80,9 +81,12 @@ class MyRect{
       l[i].deplacement();
       l[i].display();
     }
+    //masque côté gauche
+    fill(0);
+    noStroke();
+    rect(x1-hauteurRect-1,y1-1,hauteurRect+1,hauteurRect+1);
   }
 }
-
 
 class MyLine{ 
   
@@ -125,7 +129,6 @@ class MyLine{
     y2Rect = Y1+hauteurRect;
     
     end = calculEnd();
-    //println("Increment : "+ increment, "x1Rect : "+x1Rect,"x2Rect : "+x2Rect," | START : "+start, "END : "+end,"Dephasage : "+dephasage);
   }
   
   void display(){
@@ -157,7 +160,7 @@ class MyLine{
            x1Line=start;
            x2Line = x1Line; 
         }
-      } //<>// //<>// //<>// //<>// //<>// //<>//
+      }  //<>//
       x1Line+=1; //<>//
       x2Line=x1Line; //<>//
     }
@@ -185,7 +188,7 @@ class MyLine{
            x1Line=end;
            x2Line = x1Line; 
         }
-      } //<>// //<>// //<>// //<>// //<>//
+      }
       x1Line-=1;
       x2Line=x1Line;
     }
@@ -206,7 +209,148 @@ class MyLine{
     }
     // si l'arrivée est en dehors du rectangle
     if ((start+pas) > x2Rect){
-      print("ok");
+      return(x1Rect + dephasage);
+    }
+    else return 0;
+  }
+}
+
+class MyTriangle{ 
+  
+  /** Points de la line **/
+  int x1Triangle;
+  int y1Triangle;
+  int x2Triangle;
+  int y2Triangle;
+  int x3Triangle;
+  int y3Triangle;
+  
+  /** Point du rectangle **/
+  int x1Rect; 
+  int y1Rect;
+  int x2Rect;
+  int y2Rect;
+  
+  /** Point de l'intervale de déplacement de la line **/
+  int start;
+  int end;
+  int sens;
+  int increment;
+  int dephasage;  
+  int pas;        // ecart entre 2 lines
+  int nbline;     // nombre de ligne totale dans le rectangle
+  
+  MyTriangle(int X1, int Y1, int increment, int nbline,int dephasage, int sens){ // le pas correspond a l'incrément de la boucle des lines
+    this.dephasage = dephasage; 
+    this.nbline = nbline;
+    this.sens = sens;
+    this.pas = (longueurRect/nbline);
+    int decalage = calculdecalage(increment);
+    this.start = X1+decalage+dephasage;
+    this.increment = increment;
+    x1Triangle = start;
+    y1Triangle = Y1;
+    x2Triangle = x1Triangle;
+    y2Triangle = Y1+hauteurRect;
+    x3Triangle = x1Triangle - hauteurRect;
+    y3Triangle = y1Triangle + (hauteurRect/2);
+    x1Rect = X1;
+    y1Rect = Y1;
+    x2Rect = X1+longueurRect;
+    y2Rect = Y1+hauteurRect;
+    
+    end = calculEnd();
+  }
+  
+  void display(){
+    triangle(x1Triangle, y1Triangle, x2Triangle, y2Triangle,x3Triangle, y3Triangle);
+  }
+  
+  void deplacement(){
+    /** Sens de gauche à droite **/
+    if(sens == 0){
+      if(dephasage != 0){
+        /** Si la ligne sors du rectangle **/  
+        if(x1Triangle >= x2Rect){
+          x1Triangle=x1Rect;
+          x2Triangle = x1Triangle;
+          x3Triangle = x1Triangle - hauteurRect;
+          
+        }
+        /** Si la ligne atteint son arrivée dans le cas normal **/
+        if(x1Triangle >= end && x1Triangle >= start && start < end){
+          x1Triangle=start;
+          x2Triangle = x1Triangle; 
+          x3Triangle = x1Triangle - hauteurRect;
+        }
+        /** Si la ligne atteint son arrivé dans le cas ou start est après l'arrivée **/
+        if(x1Triangle >= end && x1Triangle <= start && start > end){
+          x1Triangle=start;
+          x2Triangle = x1Triangle;
+          x3Triangle = x1Triangle - hauteurRect;
+        }
+      }
+      if(dephasage == 0){
+        if(x1Triangle>= end){
+           x1Triangle=start;
+           x2Triangle = x1Triangle;
+           x3Triangle = x1Triangle - hauteurRect;
+        }
+      } 
+      x1Triangle+=1;
+      x2Triangle=x1Triangle;
+      x3Triangle +=1;
+    }
+    /** Sens de droite à gauche**/
+    if(sens == 1){
+      if(dephasage != 0){
+        /** Si la ligne sors du rectangle **/  
+        if(x1Triangle <= x1Rect){
+          x1Triangle=x2Rect;
+          x2Triangle = x1Triangle;
+          x3Triangle = x1Triangle - hauteurRect;
+        }
+        /** Si la ligne atteint son arrivée dans le cas normal **/
+        if(x1Triangle <= start && x1Triangle <= end && start < end){
+          x1Triangle=end;
+          x2Triangle = x1Triangle;
+          x3Triangle = x1Triangle - hauteurRect;
+        }
+        /** Si la ligne atteint son arrivé dans le cas ou start est après l'arrivée **/
+        if(x1Triangle <= start && x1Triangle >= end && start > end){
+          x1Triangle=end;
+          x2Triangle = x1Triangle; 
+          x3Triangle = x1Triangle - hauteurRect;
+        }
+      }
+      if(dephasage == 0){
+        if(x1Triangle<= start){
+           x1Triangle=end;
+           x2Triangle = x1Triangle;
+           x3Triangle = x1Triangle - hauteurRect;
+        }
+      }
+      x1Triangle-=1;
+      x2Triangle=x1Triangle;
+      x3Triangle -=1;
+    }
+  }
+  
+  /** Calcul le point de départ du point en fonction de l'incrément **/
+  int calculdecalage(int Pas){
+    if(Pas==0){return 0;}
+    else{
+      return((longueurRect/nbline)*Pas);
+    }
+  }
+  /** Calcul le point d'arrivée de la ligne **/
+  int calculEnd(){
+    // Si l'arrivée est dans le rectangle
+    if((start+pas) <= x2Rect){
+      return (start+pas);
+    }
+    // si l'arrivée est en dehors du rectangle
+    if ((start+pas) > x2Rect){
       return(x1Rect + dephasage);
     }
     else return 0;
